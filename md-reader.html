@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MD Reader — Beautiful Markdown Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#FAFAF8;color:#1C1916;min-height:100vh}
+header{border-bottom:1px solid #E8E4DB;padding:14px 24px;display:flex;align-items:center;gap:10px;background:#fff;position:sticky;top:0;z-index:10}
+header svg{color:#8B6914}
+.logo{font-size:15px;font-weight:500;color:#1C1916;flex:1}
+.logo span{color:#8B6914}
+#main{max-width:800px;margin:0 auto;padding:32px 24px}
+#drop-zone{border:1.5px dashed #C8C2B5;border-radius:12px;padding:64px 32px;text-align:center;cursor:pointer;transition:all .15s;background:#fff}
+#drop-zone:hover,#drop-zone.drag-over{background:#F5F2EB;border-color:#8B6914}
+#drop-zone .icon{font-size:40px;margin-bottom:16px;display:block}
+#drop-zone h2{font-size:18px;font-weight:500;margin-bottom:8px;color:#1C1916}
+#drop-zone p{font-size:14px;color:#7A7268;margin-bottom:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid #C8C2B5;background:#fff;font-size:13px;font-weight:500;color:#1C1916;cursor:pointer;transition:all .15s;font-family:inherit}
+.btn:hover{background:#F5F2EB;border-color:#8B6914}
+.btn.primary{background:#8B6914;border-color:#8B6914;color:#fff}
+.btn.primary:hover{background:#6B4E0A}
+.btn.success{background:#2D7A3A;border-color:#2D7A3A;color:#fff}
+.btn.cta{background:#2D7A3A;border-color:#2D7A3A;color:#fff;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(45,122,58,0.45)}50%{box-shadow:0 0 0 6px rgba(45,122,58,0)}}
+#paste-zone{display:none;margin-top:16px}
+#paste-input{width:100%;min-height:160px;padding:12px;border:1px solid #C8C2B5;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#1C1916;background:#fff;resize:vertical;outline:none}
+#paste-input:focus{border-color:#8B6914}
+input[type=file]{display:none}
+#reader-state{display:none}
+.toolbar{display:flex;align-items:center;gap:8px;padding:14px 0;border-bottom:1px solid #E8E4DB;margin-bottom:28px;flex-wrap:wrap}
+#fname{font-size:14px;font-weight:500;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat{font-size:12px;color:#7A7268}
+.md-content h1{font-size:30px;font-weight:600;margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid #E8E4DB;line-height:1.3}
+.md-content h2{font-size:22px;font-weight:600;margin:2rem 0 10px;line-height:1.4}
+.md-content h3{font-size:18px;font-weight:600;margin:1.5rem 0 8px}
+.md-content h4,.md-content h5,.md-content h6{font-size:15px;font-weight:600;margin:1rem 0 6px}
+.md-content p{font-size:15px;line-height:1.8;margin:0 0 14px;color:#2A2520}
+.md-content ul,.md-content ol{margin:0 0 14px;padding-left:24px;font-size:15px;line-height:1.8;color:#2A2520}
+.md-content li{margin-bottom:4px}
+.md-content blockquote{border-left:3px solid #C8C2B5;border-radius:0;margin:0 0 14px;padding:6px 0 6px 16px;color:#7A7268;font-style:italic}
+.md-content blockquote p{margin:0;font-size:15px}
+.md-content code{font-family:'JetBrains Mono',monospace;font-size:12.5px;background:#F0EDE4;padding:2px 6px;border-radius:4px;color:#5C3D02}
+.md-content pre{background:#F5F2EB;border-radius:8px;padding:16px;overflow-x:auto;margin:0 0 16px;border:1px solid #E8E4DB}
+.md-content pre code{background:none;padding:0;font-size:13px;line-height:1.65;color:#2A2520}
+.md-content hr{border:none;border-top:1px solid #E8E4DB;margin:28px 0}
+.md-content table{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:14px}
+.md-content th{border-bottom:2px solid #C8C2B5;padding:8px 12px;text-align:left;font-weight:600;color:#1C1916}
+.md-content td{border-bottom:1px solid #E8E4DB;padding:8px 12px;color:#2A2520}
+.md-content tr:last-child td{border-bottom:none}
+.md-content a{color:#8B6914;text-decoration:underline}
+.md-content a:hover{color:#6B4E0A}
+.md-content strong{font-weight:600}
+.md-content del{opacity:.5;text-decoration:line-through}
+.md-content img{max-width:100%;border-radius:8px;margin:8px 0}
+.md-content input[type=checkbox]{margin-right:8px;vertical-align:middle;accent-color:#8B6914}
+footer{text-align:center;padding:32px 24px;font-size:12px;color:#B0AA9F;border-top:1px solid #E8E4DB;margin-top:48px}
+footer a{color:#8B6914;text-decoration:none}
+@media(prefers-color-scheme:dark){
+body{background:#1A1714;color:#E8E4DB}
+header{background:#1A1714;border-color:#2E2A24}
+#drop-zone{background:#211E1A;border-color:#3A3530}
+#drop-zone:hover,#drop-zone.drag-over{background:#2A2520;border-color:#8B6914}
+#drop-zone h2{color:#E8E4DB}
+.btn{background:#211E1A;border-color:#3A3530;color:#E8E4DB}
+.btn:hover{background:#2A2520}
+#paste-input{background:#211E1A;border-color:#3A3530;color:#E8E4DB}
+.toolbar{border-color:#2E2A24}
+.md-content h1{border-color:#2E2A24}
+.md-content p,.md-content ul,.md-content ol,.md-content li{color:#D4CFCA}
+.md-content code{background:#2A2520;color:#D4A853}
+.md-content pre{background:#211E1A;border-color:#2E2A24}
+.md-content pre code{color:#D4CFCA}
+.md-content hr{border-color:#2E2A24}
+.md-content th{border-color:#3A3530;color:#E8E4DB}
+.md-content td{border-color:#2E2A24;color:#D4CFCA}
+.md-content blockquote{border-color:#3A3530;color:#9A9590}
+footer{border-color:#2E2A24}
+}
+</style>
+</head>
+<body>
+
+<header>
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M7 8v8M12 8l-3 4 3 4M17 8l-3 4 3 4"/></svg>
+<div class="logo">MD <span>Reader</span></div>
+<a href="https://glowrivia.com" target="_blank" rel="noopener" style="font-size:12px;color:#8B6914;text-decoration:none;font-weight:500">by Glow Group ↗</a>
+</header>
+
+<div id="main">
+
+<div id="empty-state">
+  <div id="drop-zone" onclick="document.getElementById('fi').click()" ondragover="dov(event)" ondragleave="dlv(event)" ondrop="ddr(event)">
+    <span class="icon">📄</span>
+    <h2>Drop your Markdown file here</h2>
+    <p>Supports .md · .markdown · .txt — or paste text below</p>
+    <button class="btn primary" onclick="event.stopPropagation();document.getElementById('fi').click()">Browse file</button>
+    &nbsp;
+    <button class="btn" onclick="event.stopPropagation();togglePaste()">Paste markdown</button>
+  </div>
+  <div id="paste-zone">
+    <textarea id="paste-input" placeholder="Paste your markdown here..." oninput="handlePaste()"></textarea>
+  </div>
+  <input type="file" id="fi" accept=".md,.txt,.markdown" onchange="handleFile(event)">
+</div>
+
+<div id="reader-state">
+  <div class="toolbar">
+    <span id="fname"></span>
+    <span class="stat" id="stats"></span>
+    <button class="btn primary" onclick="copyGDocs()" id="cpbtn">📋 Copy for Google Docs</button>
+    <button class="btn" onclick="clearDoc()" id="clrbtn">✕ Clear</button>
+  </div>
+  <div class="md-content" id="mdo"></div>
+</div>
+
+</div>
+
+<footer>
+  Built with ❤️ by <a href="https://glowrivia.com" target="_blank">Glow Group</a> — 
+  Free tool for the community · 
+  <a href="#" onclick="clearDoc();return false">Load another file</a>
+</footer>
+
+<script>
+let curMD='';
+
+function escH(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function inP(text){
+  const parts=text.split(/(`[^`\n]+`)/);
+  return parts.map((p,i)=>{
+    if(i%2===1) return '<code>'+escH(p.slice(1,-1))+'</code>';
+    p=p.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1"/>');
+    p=p.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+    p=p.replace(/\*\*\*([^*\n]+)\*\*\*/g,'<strong><em>$1</em></strong>');
+    p=p.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+    p=p.replace(/__([^_\n]+)__/g,'<strong>$1</strong>');
+    p=p.replace(/(?<![*])\*([^*\n]+)\*(?![*])/g,'<em>$1</em>');
+    p=p.replace(/(?<!_)_([^_\n]+)_(?!_)/g,'<em>$1</em>');
+    p=p.replace(/~~([^~\n]+)~~/g,'<del>$1</del>');
+    return p;
+  }).join('');
+}
+
+function parseMD(md){
+  const lines=md.split('\n');let html='',i=0;
+  while(i<lines.length){
+    const line=lines[i],tr=line.trim();
+    if(tr.startsWith('```')){
+      const lang=tr.slice(3).trim();let code='';i++;
+      while(i<lines.length&&!lines[i].trim().startsWith('```')){code+=lines[i]+'\n';i++;}
+      html+=`<pre><code>${escH(code.trimEnd())}</code></pre>\n`;i++;continue;
+    }
+    const hm=line.match(/^(#{1,6})\s+(.*)/);
+    if(hm){const l=hm[1].length;html+=`<h${l}>${inP(hm[2])}</h${l}>\n`;i++;continue;}
+    if(/^(-{3,}|\*{3,}|_{3,})\s*$/.test(tr)){html+='<hr/>\n';i++;continue;}
+    if(i+1<lines.length){
+      const nx=lines[i+1];
+      if(/^=+\s*$/.test(nx)&&tr.length>0){html+=`<h1>${inP(tr)}</h1>\n`;i+=2;continue;}
+      if(/^-+\s*$/.test(nx)&&tr.length>0&&!tr.startsWith('- ')&&!tr.startsWith('* ')){html+=`<h2>${inP(tr)}</h2>\n`;i+=2;continue;}
+    }
+    if(line.startsWith('> ')){
+      let ql=[];
+      while(i<lines.length&&(lines[i].startsWith('> ')||lines[i]==='>')){ql.push(lines[i].replace(/^>\s?/,''));i++;}
+      html+=`<blockquote><p>${inP(ql.join(' ').trim())}</p></blockquote>\n`;continue;
+    }
+    if(tr.includes('|')&&i+1<lines.length&&/^\|?[\s:|-]+\|/.test(lines[i+1])){
+      const hcells=tr.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+      const aligns=lines[i+1].replace(/^\||\|$/g,'').split('|').map(c=>{c=c.trim();return c.startsWith(':')&&c.endsWith(':')?' center':c.endsWith(':')?' right':' left';});
+      let th='<table>\n<thead><tr>';
+      hcells.forEach((c,ci)=>th+=`<th style="text-align:${aligns[ci]||'left'}">${inP(c)}</th>`);
+      th+='</tr></thead>\n<tbody>\n';i+=2;
+      while(i<lines.length&&lines[i].trim().includes('|')){
+        const rc=lines[i].trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+        th+='<tr>';rc.forEach((c,ci)=>th+=`<td style="text-align:${aligns[ci]||'left'}">${inP(c)}</td>`);th+='</tr>\n';i++;
+      }
+      html+=th+'</tbody></table>\n';continue;
+    }
+    if(/^\s*[-*+] /.test(line)){
+      let items='';
+      while(i<lines.length&&/^\s*[-*+] /.test(lines[i])){
+        const content=lines[i].replace(/^\s*[-*+] /,'');
+        if(/^\[[ x]\] /.test(content)){
+          items+=`<li><input type="checkbox" ${content[1]==='x'?'checked':''} disabled> ${inP(content.slice(4))}</li>\n`;
+        }else{items+=`<li>${inP(content)}</li>\n`;}
+        i++;
+      }
+      html+=`<ul>\n${items}</ul>\n`;continue;
+    }
+    if(/^\s*\d+\.\s/.test(line)){
+      let items='';
+      while(i<lines.length&&/^\s*\d+\.\s/.test(lines[i])){
+        items+=`<li>${inP(lines[i].replace(/^\s*\d+\.\s/,''))}</li>\n`;i++;
+      }
+      html+=`<ol>\n${items}</ol>\n`;continue;
+    }
+    if(tr===''){i++;continue;}
+    let pl=[];
+    while(i<lines.length&&lines[i].trim()!==''&&!/^#{1,6}\s/.test(lines[i])&&!/^\s*[-*+] /.test(lines[i])&&!/^\s*\d+\.\s/.test(lines[i])&&!lines[i].startsWith('>')&&!lines[i].trim().startsWith('```')&&!/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i].trim())){pl.push(lines[i]);i++;}
+    if(pl.length>0) html+=`<p>${inP(pl.join(' '))}</p>\n`;
+  }
+  return html;
+}
+
+function gdocsHTML(md){
+  const body=parseMD(md);
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><style>
+body{font-family:Georgia,serif;font-size:11pt;line-height:1.65;color:#1a1a1a;max-width:750px;margin:0 auto}
+h1{font-size:26pt;font-weight:bold;margin:0 0 12pt;border-bottom:1pt solid #ddd;padding-bottom:8pt}
+h2{font-size:20pt;font-weight:bold;margin:18pt 0 8pt}
+h3{font-size:16pt;font-weight:bold;margin:14pt 0 6pt}
+h4,h5,h6{font-size:13pt;font-weight:bold;margin:10pt 0 4pt}
+p{margin:0 0 9pt;font-size:11pt}strong{font-weight:bold}em{font-style:italic}
+code{font-family:"Courier New",monospace;font-size:10pt;background:#f4f4f4;padding:1pt 4pt}
+pre{background:#f4f4f4;padding:10pt;margin:0 0 9pt;font-family:"Courier New",monospace;font-size:10pt}
+pre code{background:none;padding:0}
+ul,ol{margin:0 0 9pt;padding-left:18pt;font-size:11pt}li{margin-bottom:3pt}
+blockquote{border-left:3pt solid #bbb;margin:0 0 9pt;padding-left:10pt;color:#555;font-style:italic}
+blockquote p{margin:0}
+table{border-collapse:collapse;width:100%;margin:0 0 9pt}
+th{border:1pt solid #ccc;padding:5pt 8pt;background:#f0f0f0;font-weight:bold}
+td{border:1pt solid #ccc;padding:5pt 8pt}
+hr{border:none;border-top:1pt solid #ddd;margin:14pt 0}
+a{color:#8B6914}del{text-decoration:line-through;opacity:.6}
+</style></head><body>${body}</body></html>`;
+}
+
+function getStats(md){
+  const w=md.trim().split(/\s+/).filter(x=>x).length;
+  const m=Math.max(1,Math.round(w/200));
+  return `${w.toLocaleString()} words · ${m} min read`;
+}
+
+function loadMD(text,name){
+  curMD=text;
+  document.getElementById('empty-state').style.display='none';
+  document.getElementById('reader-state').style.display='block';
+  document.getElementById('fname').textContent=name||'document.md';
+  document.getElementById('stats').textContent=getStats(text);
+  document.getElementById('mdo').innerHTML=parseMD(text);
+  window.scrollTo(0,0);
+}
+
+function handleFile(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>loadMD(ev.target.result,f.name);r.readAsText(f);
+}
+function dov(e){e.preventDefault();document.getElementById('drop-zone').classList.add('drag-over')}
+function dlv(e){document.getElementById('drop-zone').classList.remove('drag-over')}
+function ddr(e){
+  e.preventDefault();document.getElementById('drop-zone').classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];if(!f)return;
+  const r=new FileReader();r.onload=ev=>loadMD(ev.target.result,f.name);r.readAsText(f);
+}
+function togglePaste(){
+  const pz=document.getElementById('paste-zone');
+  pz.style.display=pz.style.display==='none'?'block':'none';
+  if(pz.style.display==='block') setTimeout(()=>document.getElementById('paste-input').focus(),50);
+}
+function handlePaste(){
+  const t=document.getElementById('paste-input').value;
+  if(t.trim().length>10) loadMD(t,'Pasted content');
+}
+function clearDoc(){
+  curMD='';
+  document.getElementById('empty-state').style.display='block';
+  document.getElementById('reader-state').style.display='none';
+  document.getElementById('paste-input').value='';
+  document.getElementById('fi').value='';
+  document.getElementById('paste-zone').style.display='none';
+  const clr=document.getElementById('clrbtn');
+  clr.textContent='✕ Clear';clr.className='btn';
+  window.scrollTo(0,0);
+}
+async function copyGDocs(){
+  const btn=document.getElementById('cpbtn');
+  const clr=document.getElementById('clrbtn');
+  try{
+    const html=gdocsHTML(curMD);
+    const blob=new Blob([html],{type:'text/html'});
+    await navigator.clipboard.write([new ClipboardItem({'text/html':blob})]);
+    btn.textContent='✓ Copied! Paste into Google Docs';
+    btn.className='btn success';
+  }catch(e){
+    try{
+      await navigator.clipboard.writeText(curMD);
+      btn.textContent='✓ Copied as plain text';
+      btn.className='btn success';
+    }catch(e2){
+      btn.textContent='✗ Please allow clipboard access';
+    }
+  }
+  // After copy done → light up Clear as the obvious next step
+  setTimeout(()=>{
+    btn.textContent='📋 Copy for Google Docs';
+    btn.className='btn primary';
+    clr.textContent='↺ Load new file';
+    clr.className='btn cta';
+  },2800);
+}
+document.addEventListener('dragover',e=>e.preventDefault());
+document.addEventListener('drop',e=>{
+  e.preventDefault();
+  const f=e.dataTransfer.files[0];
+  if(f&&f.name.match(/\.(md|markdown|txt)$/i)){
+    const r=new FileReader();r.onload=ev=>loadMD(ev.target.result,f.name);r.readAsText(f);
+  }
+});
+</script>
+</body>
+</html>

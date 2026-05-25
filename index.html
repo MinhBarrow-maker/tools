@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovable Image Optimizer — Batch WebP Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0efe9;
+    --border: #e2e0d8;
+    --border2: #ccc9be;
+    --text: #1a1916;
+    --muted: #7a776e;
+    --accent: #1a1916;
+    --green-bg: #e8f5e0;
+    --green-text: #2d6e18;
+    --blue-bg: #e3eef9;
+    --blue-text: #1a4f8a;
+    --red-bg: #fbe9e9;
+    --red-text: #8a1a1a;
+    --amber-bg: #fdf3e0;
+    --amber-text: #7a4d0a;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+  }
+
+  .container { max-width: 760px; margin: 0 auto; }
+
+  header { margin-bottom: 28px; }
+  header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* Drop zone */
+  #drop-zone {
+    border: 2px dashed var(--border2);
+    border-radius: var(--radius);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--surface);
+    transition: all 0.15s;
+    margin-bottom: 16px;
+    user-select: none;
+  }
+  #drop-zone:hover, #drop-zone.over { border-color: var(--accent); background: var(--surface2); }
+  #drop-zone svg { display: block; margin: 0 auto 10px; opacity: 0.45; }
+  #drop-zone .dz-title { font-size: 15px; font-weight: 500; }
+  #drop-zone .dz-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  #file-input { display: none; }
+
+  /* Settings */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .setting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .setting-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 500; }
+  .setting-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
+  input[type=range] {
+    width: 100%; height: 4px; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+    background: var(--border); border-radius: 2px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  input[type=number] {
+    width: 100%; padding: 7px 10px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg); color: var(--text);
+    font-size: 15px; font-weight: 500;
+    outline: none; transition: border-color 0.15s;
+  }
+  input[type=number]:focus { border-color: var(--accent); }
+
+  /* Stats */
+  #stats-row { display: none; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+  .stat-value.green { color: var(--green-text); }
+
+  /* File queue */
+  #file-queue { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .frow {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 9px 13px;
+  }
+  .fname { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fsizes { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .fsizes .saved { color: var(--green-text); font-weight: 600; }
+  .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
+  .b-wait { background: var(--surface2); color: var(--muted); }
+  .b-proc { background: var(--blue-bg); color: var(--blue-text); }
+  .b-done { background: var(--green-bg); color: var(--green-text); }
+  .b-err  { background: var(--red-bg);  color: var(--red-text); }
+
+  /* Progress bar */
+  #progress-wrap { display: none; margin-bottom: 14px; }
+  #progress-bar-bg { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  #progress-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; transition: width 0.3s; }
+  #progress-label { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+  /* Action buttons */
+  #btn-bar { display: none; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .btn-primary {
+    flex: 2; min-width: 130px; padding: 10px 18px;
+    font-size: 13px; font-weight: 600;
+    background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius-sm);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: opacity 0.15s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-secondary {
+    flex: 2; min-width: 130px; padding: 10px 18px;
+    font-size: 13px; font-weight: 600;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border2); border-radius: var(--radius-sm);
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: background 0.15s;
+  }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-ghost {
+    padding: 10px 14px; font-size: 13px;
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer;
+    transition: color 0.15s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-cta {
+    padding: 10px 14px; font-size: 13px; font-weight: 600;
+    background: #1a7a3a; color: #fff;
+    border: 1px solid #1a7a3a; border-radius: var(--radius-sm); cursor: pointer;
+    animation: ctapulse 1.8s ease-in-out infinite;
+  }
+  @keyframes ctapulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(26,122,58,0.5); }
+    55%       { box-shadow: 0 0 0 8px rgba(26,122,58,0); }
+  }
+
+  /* Result previews */
+  #results-section { display: none; }
+  #results-section h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  #results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .result-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--surface2); }
+  .result-info { padding: 8px 10px; }
+  .result-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result-sizes { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .result-pct { font-size: 12px; font-weight: 700; color: var(--green-text); }
+  .result-dl { width: 100%; padding: 7px; font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text); border: none; border-top: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background 0.1s; }
+  .result-dl:hover { background: var(--border); }
+
+  /* Footer tip */
+  .tip { font-size: 12px; color: var(--muted); margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+  svg.icon { width: 16px; height: 16px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>
+      <svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Lovable Image Optimizer
+    </h1>
+    <p>Batch convert images to WebP — real ZIP download, no restrictions</p>
+  </header>
+
+  <div id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" aria-label="Upload images">
+    <svg style="width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <div class="dz-title">Drop images here or click to upload</div>
+    <div class="dz-sub">JPG, PNG, GIF, BMP, AVIF — multiple files supported</div>
+  </div>
+  <input type="file" id="file-input" multiple accept="image/*">
+
+  <div class="settings-grid">
+    <div class="setting-card">
+      <div class="setting-label">WebP Quality</div>
+      <div class="setting-value" id="q-val">82</div>
+      <input type="range" id="quality" min="1" max="100" value="82" step="1">
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">Max Width (px)</div>
+      <input type="number" id="max-w" value="0" min="0" placeholder="0 = original" style="margin-top:14px">
+    </div>
+    <div class="setting-card">
+      <div class="setting-label">Max Height (px)</div>
+      <input type="number" id="max-h" value="0" min="0" placeholder="0 = original" style="margin-top:14px">
+    </div>
+  </div>
+
+  <div id="stats-row">
+    <div class="stat-card"><div class="stat-label">Files</div><div class="stat-value" id="s-count">—</div></div>
+    <div class="stat-card"><div class="stat-label">Original size</div><div class="stat-value" id="s-orig">—</div></div>
+    <div class="stat-card"><div class="stat-label">Saved</div><div class="stat-value green" id="s-pct">—</div></div>
+  </div>
+
+  <div id="file-queue"></div>
+
+  <div id="progress-wrap">
+    <div id="progress-bar-bg"><div id="progress-bar-fill"></div></div>
+    <div id="progress-label">Converting…</div>
+  </div>
+
+  <div id="btn-bar">
+    <button class="btn-primary" id="btn-convert" onclick="convertAll()">
+      <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Convert all to WebP
+    </button>
+    <button class="btn-secondary" id="btn-zip" onclick="downloadZip()" disabled>
+      <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download all as ZIP
+    </button>
+    <button class="btn-ghost" id="btn-clear" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div id="results-section">
+    <h2>Converted files — click any to download individually</h2>
+    <div id="results-grid"></div>
+  </div>
+
+  <p class="tip">
+    <strong>Tip for Lovable projects:</strong> Use quality 75–85 for photos, 90+ for UI screenshots. Set max width to 1920 for hero images, 800 for thumbnails.
+    All processing happens in your browser — no files are uploaded anywhere.
+  </p>
+
+</div>
+
+<script>
+let items = [], uid = 0;
+const fmt = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(2) + ' MB';
+const newName = n => n.replace(/\.[^.]+$/, '') + '.webp';
+
+// Drag & drop
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', e => { if (!dz.contains(e.relatedTarget)) dz.classList.remove('over'); });
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); addFiles(e.dataTransfer.files); });
+document.getElementById('file-input').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+document.getElementById('quality').addEventListener('input', e => { document.getElementById('q-val').textContent = e.target.value; });
+
+function addFiles(list) {
+  for (const f of list) {
+    if (!f.type.startsWith('image/')) continue;
+    items.push({ id: ++uid, file: f, dataUrl: null, outSize: 0, status: 'waiting' });
+  }
+  render();
+}
+
+function render() {
+  const q = document.getElementById('file-queue');
+  const bar = document.getElementById('btn-bar');
+  if (!items.length) { q.innerHTML = ''; bar.style.display = 'none'; document.getElementById('stats-row').style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  q.innerHTML = items.map(it => {
+    const cls = { waiting:'b-wait', processing:'b-proc', done:'b-done', error:'b-err' }[it.status];
+    const lbl = { waiting:'Waiting', processing:'Converting…', done:'Done ✓', error:'Error' }[it.status];
+    const pct = it.dataUrl ? Math.round((1 - it.outSize / it.file.size) * 100) : null;
+    const sz = it.dataUrl
+      ? `${fmt(it.file.size)} → ${fmt(it.outSize)} <span class="saved">−${pct}%</span>`
+      : fmt(it.file.size);
+    return `<div class="frow">
+      <div>
+        <div class="fname" title="${it.file.name}">${it.file.name}</div>
+        <div class="fsizes">${sz}</div>
+      </div>
+      <span class="badge ${cls}">${lbl}</span>
+    </div>`;
+  }).join('');
+
+  const done = items.filter(i => i.dataUrl);
+  const sr = document.getElementById('stats-row');
+  if (done.length) {
+    sr.style.display = 'grid';
+    const ot = done.reduce((s,i) => s + i.file.size, 0);
+    const nt = done.reduce((s,i) => s + i.outSize, 0);
+    document.getElementById('s-count').textContent = done.length + ' / ' + items.length;
+    document.getElementById('s-orig').textContent = fmt(ot);
+    document.getElementById('s-pct').textContent = Math.round((1 - nt/ot) * 100) + '%';
+  } else { sr.style.display = 'none'; }
+
+  const allDone = items.length > 0 && items.every(i => i.status === 'done' || i.status === 'error');
+  document.getElementById('btn-zip').disabled = !done.length || !allDone;
+}
+
+function renderResults() {
+  const done = items.filter(i => i.dataUrl);
+  const sec = document.getElementById('results-section');
+  const grid = document.getElementById('results-grid');
+  if (!done.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  grid.innerHTML = done.map(it => {
+    const nn = newName(it.file.name);
+    const pct = Math.round((1 - it.outSize / it.file.size) * 100);
+    return `<div class="result-card">
+      <img class="result-img" src="${it.dataUrl}" alt="${nn}" loading="lazy">
+      <div class="result-info">
+        <div class="result-name" title="${nn}">${nn}</div>
+        <div class="result-sizes">${fmt(it.file.size)} → ${fmt(it.outSize)} <span class="result-pct">−${pct}%</span></div>
+      </div>
+      <button class="result-dl" onclick="dlSingle(${it.id})">
+        <svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function convertItem(it) {
+  return new Promise(resolve => {
+    it.status = 'processing'; render();
+    const ou = URL.createObjectURL(it.file);
+    const img = new Image();
+    img.onload = () => {
+      const q = parseInt(document.getElementById('quality').value) / 100;
+      const mw = parseInt(document.getElementById('max-w').value) || 0;
+      const mh = parseInt(document.getElementById('max-h').value) || 0;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      if (mw > 0 && w > mw) { h = Math.round(h * mw / w); w = mw; }
+      if (mh > 0 && h > mh) { w = Math.round(w * mh / h); h = mh; }
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      URL.revokeObjectURL(ou);
+      const du = cv.toDataURL('image/webp', q);
+      it.dataUrl = du;
+      it.outSize = Math.round(atob(du.split(',')[1]).length);
+      it.status = 'done';
+      resolve();
+    };
+    img.onerror = () => { it.status = 'error'; URL.revokeObjectURL(ou); resolve(); };
+    img.src = ou;
+  });
+}
+
+async function convertAll() {
+  const btn = document.getElementById('btn-convert');
+  const pw = document.getElementById('progress-wrap');
+  const pf = document.getElementById('progress-bar-fill');
+  const pl = document.getElementById('progress-label');
+  btn.disabled = true;
+  pw.style.display = 'block';
+  const total = items.filter(i => i.status !== 'done').length;
+  let done = 0;
+  for (const it of items) {
+    if (it.status !== 'done') {
+      await convertItem(it);
+      done++;
+      pf.style.width = Math.round(done / total * 100) + '%';
+      pl.textContent = `Converting… ${done} / ${total}`;
+      render();
+      renderResults();
+    }
+  }
+  pw.style.display = 'none';
+  pf.style.width = '0%';
+  btn.disabled = false;
+  render();
+  renderResults();
+}
+
+function highlightClear() {
+  const b = document.getElementById('btn-clear');
+  b.className = 'btn-cta';
+  b.textContent = '↺ New batch';
+}
+
+async function downloadZip() {
+  const btn = document.getElementById('btn-zip');
+  btn.disabled = true;
+  btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Zipping…`;
+  try {
+    const zip = new JSZip();
+    const folder = zip.folder('optimized-webp');
+    for (const it of items) {
+      if (!it.dataUrl) continue;
+      const b64 = it.dataUrl.split(',')[1];
+      folder.file(newName(it.file.name), b64, { base64: true });
+    }
+    const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' }, meta => {
+      btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Zipping ${Math.round(meta.percent)}%…`;
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'optimized-webp.zip';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+    highlightClear();
+  } catch(e) { alert('ZIP failed: ' + e.message); }
+  btn.disabled = false;
+  btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download all as ZIP`;
+}
+
+function dlSingle(id) {
+  const it = items.find(i => i.id === id);
+  if (!it || !it.dataUrl) return;
+  const a = document.createElement('a');
+  a.href = it.dataUrl; a.download = newName(it.file.name);
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  highlightClear();
+}
+
+function clearAll() {
+  items = [];
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('results-grid').innerHTML = '';
+  const b = document.getElementById('btn-clear');
+  b.className = 'btn-ghost';
+  b.textContent = 'Clear';
+  render();
+}
+</script>
+</body>
+</html>
