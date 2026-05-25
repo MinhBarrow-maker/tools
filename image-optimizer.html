@@ -9,22 +9,25 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: #e2e0d8;
-    --border2: #ccc9be;
-    --text: #1a1916;
-    --muted: #7a776e;
-    --accent: #1a1916;
-    --green-bg: #e8f5e0;
-    --green-text: #2d6e18;
-    --blue-bg: #e3eef9;
-    --blue-text: #1a4f8a;
-    --red-bg: #fbe9e9;
-    --red-text: #8a1a1a;
-    --amber-bg: #fdf3e0;
-    --amber-text: #7a4d0a;
+    --bg: #FAF0EA;
+    --surface: #FFFFFF;
+    --surface2: #F5E6E0;
+    --border: #EDDAD2;
+    --border2: #D9C0B8;
+    --text: #2C1F1A;
+    --muted: #7A6560;
+    --accent: #B5546A;
+    --accent-hover: #923F54;
+    --gold: #B8924A;
+    --rose: #C4607A;
+    --green-bg: #EDF5F1;
+    --green-text: #2A6647;
+    --blue-bg: #EEF3F9;
+    --blue-text: #2C5282;
+    --red-bg: #FBE9EC;
+    --red-text: #8A1A2C;
+    --amber-bg: #FDF5E0;
+    --amber-text: #7A5A0A;
     --radius: 10px;
     --radius-sm: 6px;
   }
@@ -41,9 +44,15 @@
 
   .container { max-width: 760px; margin: 0 auto; }
 
-  header { margin-bottom: 28px; }
-  header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  header { margin-bottom: 28px; position: relative; text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--accent); }
+  header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
   header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .lang-toggle { position: absolute; top: 0; right: 0; display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border2); border-radius: 99px; padding: 3px; gap: 0; }
+  .lang-opt { background: transparent; border: none; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; border-radius: 99px; transition: all .15s; font-family: inherit; letter-spacing: .04em; }
+  .lang-opt.active { background: var(--accent); color: #fff; }
+  .lang-opt:not(.active):hover { color: var(--accent); }
+
 
   /* Drop zone */
   #drop-zone {
@@ -57,7 +66,7 @@
     margin-bottom: 16px;
     user-select: none;
   }
-  #drop-zone:hover, #drop-zone.over { border-color: var(--accent); background: var(--surface2); }
+  #drop-zone:hover, #drop-zone.over { border-color: var(--accent); background: #FBE8EE; }
   #drop-zone svg { display: block; margin: 0 auto 10px; opacity: 0.45; }
   #drop-zone .dz-title { font-size: 15px; font-weight: 500; }
   #drop-zone .dz-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
@@ -66,7 +75,7 @@
   /* Settings */
   .settings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 16px; }
   .setting-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
-  .setting-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; font-weight: 500; }
+  .setting-label { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; font-weight: 700; }
   .setting-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 6px; }
   input[type=range] {
     width: 100%; height: 4px; cursor: pointer;
@@ -75,7 +84,7 @@
   }
   input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none; width: 16px; height: 16px;
-    border-radius: 50%; background: var(--accent); cursor: pointer;
+    border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--accent-hover);
   }
   input[type=number] {
     width: 100%; padding: 7px 10px;
@@ -84,14 +93,14 @@
     font-size: 15px; font-weight: 500;
     outline: none; transition: border-color 0.15s;
   }
-  input[type=number]:focus { border-color: var(--accent); }
+  input[type=number]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(181,84,106,.12); }
 
   /* Stats */
   #stats-row { display: none; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
   .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; margin-bottom: 4px; }
   .stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-  .stat-value.green { color: var(--green-text); }
+  .stat-value.green { color: var(--rose); }
 
   /* File queue */
   #file-queue { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -103,7 +112,7 @@
   }
   .fname { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fsizes { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .fsizes .saved { color: var(--green-text); font-weight: 600; }
+  .fsizes .saved { color: var(--accent); font-weight: 600; }
   .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
   .b-wait { background: var(--surface2); color: var(--muted); }
   .b-proc { background: var(--blue-bg); color: var(--blue-text); }
@@ -124,9 +133,9 @@
     background: var(--accent); color: #fff;
     border: none; border-radius: var(--radius-sm);
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
-    transition: opacity 0.15s;
+    transition: background 0.15s;
   }
-  .btn-primary:hover { opacity: 0.85; }
+  .btn-primary:hover { background: var(--accent-hover); }
   .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
   .btn-secondary {
     flex: 2; min-width: 130px; padding: 10px 18px;
@@ -147,30 +156,38 @@
   .btn-ghost:hover { color: var(--text); }
   .btn-cta {
     padding: 10px 14px; font-size: 13px; font-weight: 600;
-    background: #1a7a3a; color: #fff;
-    border: 1px solid #1a7a3a; border-radius: var(--radius-sm); cursor: pointer;
+    background: var(--accent); color: #fff;
+    border: 1px solid var(--accent); border-radius: var(--radius-sm); cursor: pointer;
     animation: ctapulse 1.8s ease-in-out infinite;
   }
   @keyframes ctapulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(26,122,58,0.5); }
-    55%       { box-shadow: 0 0 0 8px rgba(26,122,58,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(181,84,106,0.45); }
+    55%       { box-shadow: 0 0 0 8px rgba(181,84,106,0); }
   }
 
   /* Result previews */
   #results-section { display: none; }
-  #results-section h2 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  #results-section h2 { font-size: 11px; font-weight: 700; margin-bottom: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: .1em; }
   #results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
   .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
   .result-img { width: 100%; height: 140px; object-fit: cover; display: block; background: var(--surface2); }
   .result-info { padding: 8px 10px; }
   .result-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .result-sizes { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .result-pct { font-size: 12px; font-weight: 700; color: var(--green-text); }
+  .result-pct { font-size: 12px; font-weight: 700; color: var(--accent); }
   .result-dl { width: 100%; padding: 7px; font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text); border: none; border-top: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background 0.1s; }
   .result-dl:hover { background: var(--border); }
 
-  /* Footer tip */
-  .tip { font-size: 12px; color: var(--muted); margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--border); }
+  /* Type reference table */
+  .type-ref { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .type-ref-title { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+  .type-ref-title:hover { color: var(--accent); }
+  .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+  .type-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .type-tag { font-family: monospace; font-size: 11px; font-weight: 700; color: var(--gold); background: #FDF6E8; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; border: 1px solid #EAD9B0; }
+  .type-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  /* Rename preview */
+  .rename-preview { font-size: 11px; font-family: monospace; color: var(--accent); background: #FAEAEE; padding: 2px 6px; border-radius: 4px; margin-top: 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #DDB8C4; }
 
   svg.icon { width: 16px; height: 16px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 </style>
@@ -179,40 +196,42 @@
 <div class="container">
 
   <header>
-    <h1>
-      <svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px;margin-right:6px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Lovable Image Optimizer
-    </h1>
-    <p>Batch convert images to WebP — real ZIP download, no restrictions</p>
+    <div class="lang-toggle">
+      <button class="lang-opt active" id="lang-en" onclick="setLang('en')">EN</button>
+      <button class="lang-opt" id="lang-vi" onclick="setLang('vi')">VI</button>
+    </div>
+    <div class="eyebrow" id="t-eyebrow">Glow Group · Free Tools</div>
+    <h1><span id="t-title">Lovable Image Optimizer</span></h1>
+    <p id="t-subtitle">Batch convert images to WebP — real ZIP download, no restrictions</p>
   </header>
 
   <div id="drop-zone" onclick="document.getElementById('file-input').click()" role="button" aria-label="Upload images">
     <svg style="width:36px;height:36px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-    <div class="dz-title">Drop images here or click to upload</div>
-    <div class="dz-sub">JPG, PNG, GIF, BMP, AVIF — multiple files supported</div>
+    <div class="dz-title" id="t-dz-title">Drop images here or click to upload</div>
+    <div class="dz-sub" id="t-dz-sub">JPG, PNG, GIF, BMP, AVIF — multiple files supported</div>
   </div>
   <input type="file" id="file-input" multiple accept="image/*">
 
   <div class="settings-grid">
     <div class="setting-card">
-      <div class="setting-label">WebP Quality</div>
+      <div class="setting-label" id="t-q-label">WebP Quality</div>
       <div class="setting-value" id="q-val">82</div>
       <input type="range" id="quality" min="1" max="100" value="82" step="1">
     </div>
     <div class="setting-card">
-      <div class="setting-label">Max Width (px)</div>
+      <div class="setting-label" id="t-mw-label">Max Width (px)</div>
       <input type="number" id="max-w" value="0" min="0" placeholder="0 = original" style="margin-top:14px">
     </div>
     <div class="setting-card">
-      <div class="setting-label">Max Height (px)</div>
+      <div class="setting-label" id="t-mh-label">Max Height (px)</div>
       <input type="number" id="max-h" value="0" min="0" placeholder="0 = original" style="margin-top:14px">
     </div>
   </div>
 
   <div id="stats-row">
-    <div class="stat-card"><div class="stat-label">Files</div><div class="stat-value" id="s-count">—</div></div>
-    <div class="stat-card"><div class="stat-label">Original size</div><div class="stat-value" id="s-orig">—</div></div>
-    <div class="stat-card"><div class="stat-label">Saved</div><div class="stat-value green" id="s-pct">—</div></div>
+    <div class="stat-card"><div class="stat-label" id="t-s-files" style="color:var(--rose)">Files</div><div class="stat-value" id="s-count">—</div></div>
+    <div class="stat-card"><div class="stat-label" id="t-s-orig" style="color:var(--muted)">Original size</div><div class="stat-value" id="s-orig">—</div></div>
+    <div class="stat-card"><div class="stat-label" id="t-s-saved" style="color:var(--gold);font-weight:600">Saved</div><div class="stat-value green" id="s-pct">—</div></div>
   </div>
 
   <div id="file-queue"></div>
@@ -225,31 +244,150 @@
   <div id="btn-bar">
     <button class="btn-primary" id="btn-convert" onclick="convertAll()">
       <svg class="icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      Convert all to WebP
+      <span id="t-btn-convert">Convert all to WebP</span>
     </button>
     <button class="btn-secondary" id="btn-zip" onclick="downloadZip()" disabled>
       <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      Download all as ZIP
+      <span id="t-btn-zip">Download all as ZIP</span>
     </button>
-    <button class="btn-ghost" id="btn-clear" onclick="clearAll()">Clear</button>
+    <button class="btn-ghost" id="btn-clear" onclick="clearAll()"><span id="t-btn-clear">Clear</span></button>
   </div>
 
   <div id="results-section">
-    <h2>Converted files — click any to download individually</h2>
+    <h2 id="t-results-title">Converted files — click any to download individually</h2>
     <div id="results-grid"></div>
   </div>
 
   <p class="tip">
-    <strong>Tip for Lovable projects:</strong> Use quality 75–85 for photos, 90+ for UI screenshots. Set max width to 1920 for hero images, 800 for thumbnails.
-    All processing happens in your browser — no files are uploaded anywhere.
+    <strong>Tip:</strong> Use quality 75–85 for photos, 90+ for UI screenshots. All processing happens in your browser — no files uploaded anywhere.
   </p>
+
+  <div class="type-ref">
+    <div class="type-ref-title" onclick="toggleRef()">
+      <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="t-ref-title">Naming guide — prefix your file with the right type</span>
+      <span id="ref-arrow" style="margin-left:auto;font-size:10px">▼</span>
+    </div>
+    <div id="ref-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Name your file as <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">[type]-[description].png</code> before uploading. Tool will clean + convert automatically.</p>
+      <div class="type-grid">
+        <div class="type-row"><span class="type-tag">hero</span><span class="type-desc">Ảnh lớn đầu trang, full width</span></div>
+        <div class="type-row"><span class="type-tag">card</span><span class="type-desc">Ảnh trong thẻ / grid / danh sách</span></div>
+        <div class="type-row"><span class="type-tag">cta</span><span class="type-desc">Ảnh cạnh nút call-to-action</span></div>
+        <div class="type-row"><span class="type-tag">banner</span><span class="type-desc">Ảnh ngang full width giữa trang</span></div>
+        <div class="type-row"><span class="type-tag">avatar</span><span class="type-desc">Ảnh người, portrait, đại diện</span></div>
+        <div class="type-row"><span class="type-tag">mockup</span><span class="type-desc">File mockup toàn trang (reference)</span></div>
+        <div class="type-row"><span class="type-tag">bg</span><span class="type-desc">Ảnh nền section / trang</span></div>
+        <div class="type-row"><span class="type-tag">icon</span><span class="type-desc">Icon nhỏ, logo, thumbnail</span></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px">Ví dụ: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">hero-lessons-couple.png</code> → <code style="background:var(--green-bg);color:var(--green-text);padding:1px 5px;border-radius:3px">hero-lessons-couple.webp</code></p>
+    </div>
+  </div>
 
 </div>
 
 <script>
 let items = [], uid = 0;
+let lang = 'en';
+
+const LANGS = {
+  en: {
+    eyebrow:'Glow Group · Free Tools',
+    title:'Lovable Image Optimizer', subtitle:'Batch convert images to WebP — real ZIP download, no restrictions',
+    dzTitle:'Drop images here or click to upload', dzSub:'JPG, PNG, GIF, BMP, AVIF — multiple files supported',
+    qLabel:'WebP Quality', mwLabel:'Max Width (px)', mhLabel:'Max Height (px)',
+    sFiles:'Files', sOrig:'Original size', sSaved:'Saved',
+    btnConvert:'Convert all to WebP', btnZip:'Download all as ZIP', btnClear:'Clear', btnNew:'↺ New batch',
+    resultsTitle:'Converted files — click any to download individually',
+    tip:'<strong>Tip:</strong> Use quality 75–85 for photos, 90+ for UI screenshots. All processing happens in your browser — no files uploaded anywhere.',
+    refTitle:'Naming guide — prefix your file with the right type',
+    refDesc:'Name your file as <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">[type]-[description].png</code> before uploading. Tool will clean + convert automatically.',
+    refExample:'Example: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">hero-lessons-couple.png</code> → <code style="background:var(--green-bg);color:var(--green-text);padding:1px 5px;border-radius:3px">hero-lessons-couple.webp</code>',
+    wait:'Waiting', proc:'Converting…', done:'Done ✓', err:'Error', dl:'Download',
+    zipping:'Zipping…', zippingPct: p => `Zipping ${p}%…`,
+    typeHero:'Large image at top of page, full width', typeCard:'Image in card / grid / list',
+    typeCta:'Image next to call-to-action button', typeBanner:'Full-width horizontal image mid-page',
+    typeAvatar:'Person photo, portrait, profile', typeMockup:'Full page mockup file (reference)',
+    typeBg:'Section or page background image', typeIcon:'Small icon, logo, thumbnail',
+  },
+  vi: {
+    eyebrow:'Glow Group · Công Cụ Miễn Phí',
+    title:'Tối Ưu Hình Ảnh Lovable', subtitle:'Chuyển hàng loạt ảnh sang WebP — tải ZIP thật sự, không giới hạn',
+    dzTitle:'Kéo thả ảnh vào đây hoặc click để upload', dzSub:'JPG, PNG, GIF, BMP, AVIF — hỗ trợ nhiều file cùng lúc',
+    qLabel:'Chất lượng WebP', mwLabel:'Chiều rộng tối đa (px)', mhLabel:'Chiều cao tối đa (px)',
+    sFiles:'Số file', sOrig:'Dung lượng gốc', sSaved:'Đã tiết kiệm',
+    btnConvert:'Chuyển tất cả sang WebP', btnZip:'Tải tất cả dạng ZIP', btnClear:'Xóa', btnNew:'↺ Batch mới',
+    resultsTitle:'File đã chuyển — click để tải từng file',
+    tip:'<strong>Mẹo:</strong> Dùng chất lượng 75–85 cho ảnh thường, 90+ cho screenshot UI. Toàn bộ xử lý trên trình duyệt — không upload file lên server.',
+    refTitle:'Hướng dẫn đặt tên — thêm type phù hợp vào đầu tên file',
+    refDesc:'Đặt tên file theo dạng <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">[type]-[mô-tả].png</code> trước khi upload. Tool sẽ tự clean + chuyển đổi.',
+    refExample:'Ví dụ: <code style="background:var(--surface2);padding:1px 5px;border-radius:3px">hero-lessons-couple.png</code> → <code style="background:var(--green-bg);color:var(--green-text);padding:1px 5px;border-radius:3px">hero-lessons-couple.webp</code>',
+    wait:'Chờ', proc:'Đang xử lý…', done:'Xong ✓', err:'Lỗi', dl:'Tải về',
+    zipping:'Đang nén…', zippingPct: p => `Đang nén ${p}%…`,
+    typeHero:'Ảnh lớn đầu trang, full width', typeCard:'Ảnh trong thẻ / grid / danh sách',
+    typeCta:'Ảnh cạnh nút call-to-action', typeBanner:'Ảnh ngang full width giữa trang',
+    typeAvatar:'Ảnh người, portrait, đại diện', typeMockup:'File mockup toàn trang (reference)',
+    typeBg:'Ảnh nền section / trang', typeIcon:'Icon nhỏ, logo, thumbnail',
+  }
+};
+
+function T() { return LANGS[lang]; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('lang-en').className = 'lang-opt' + (lang==='en'?' active':'');
+  document.getElementById('lang-vi').className = 'lang-opt' + (lang==='vi'?' active':'');
+  applyLang();
+  render();
+}
+
+function applyLang() {
+  const t = T();
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
+  set('t-eyebrow', t.eyebrow);
+  set('t-title', t.title);
+  set('t-subtitle', t.subtitle);
+  set('t-dz-title', t.dzTitle);
+  set('t-dz-sub', t.dzSub);
+  set('t-q-label', t.qLabel);
+  set('t-mw-label', t.mwLabel);
+  set('t-mh-label', t.mhLabel);
+  set('t-s-files', t.sFiles);
+  set('t-s-orig', t.sOrig);
+  set('t-s-saved', t.sSaved);
+  set('t-btn-convert', t.btnConvert);
+  set('t-btn-zip', t.btnZip);
+  set('t-btn-clear', t.btnClear);
+  set('t-results-title', t.resultsTitle);
+  set('t-tip', t.tip);
+  set('t-ref-title', t.refTitle);
+  set('t-ref-desc', t.refDesc);
+  set('t-ref-example', t.refExample);
+  set('t-type-hero', t.typeHero); set('t-type-card', t.typeCard);
+  set('t-type-cta', t.typeCta); set('t-type-banner', t.typeBanner);
+  set('t-type-avatar', t.typeAvatar); set('t-type-mockup', t.typeMockup);
+  set('t-type-bg', t.typeBg); set('t-type-icon', t.typeIcon);
+  document.title = t.title;
+}
+
 const fmt = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(2) + ' MB';
-const newName = n => n.replace(/\.[^.]+$/, '') + '.webp';
+
+function cleanName(filename) {
+  let name = filename.replace(/\.[^.]+$/, '');
+  // Remove leading number + dot/space: "4. " or "3."
+  name = name.replace(/^\d+[\.\s]+/, '');
+  // Lowercase
+  name = name.toLowerCase();
+  // Dots, spaces, underscores → hyphens
+  name = name.replace(/[\s._]+/g, '-');
+  // Add hyphen between letter and digit: "lesson1" → "lesson-1"
+  name = name.replace(/([a-z])(\d)/g, '$1-$2');
+  // Add hyphen between digit and letter: "2performance" → "2-performance"
+  name = name.replace(/(\d)([a-z])/g, '$1-$2');
+  // Clean up multiple hyphens
+  name = name.replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  return name + '.webp';
+}
 
 // Drag & drop
 const dz = document.getElementById('drop-zone');
@@ -275,15 +413,18 @@ function render() {
 
   q.innerHTML = items.map(it => {
     const cls = { waiting:'b-wait', processing:'b-proc', done:'b-done', error:'b-err' }[it.status];
-    const lbl = { waiting:'Waiting', processing:'Converting…', done:'Done ✓', error:'Error' }[it.status];
+    const t = T(); const lbl = { waiting:t.wait, processing:t.proc, done:t.done, error:t.err }[it.status];
     const pct = it.dataUrl ? Math.round((1 - it.outSize / it.file.size) * 100) : null;
     const sz = it.dataUrl
       ? `${fmt(it.file.size)} → ${fmt(it.outSize)} <span class="saved">−${pct}%</span>`
-      : fmt(it.file.size);
+      : it.status === 'error' && it.errorMsg
+        ? `<span style="color:var(--red-text);font-size:11px">${it.errorMsg}</span>`
+        : fmt(it.file.size);
     return `<div class="frow">
       <div>
         <div class="fname" title="${it.file.name}">${it.file.name}</div>
         <div class="fsizes">${sz}</div>
+        ${!it.dataUrl ? `<span class="rename-preview">→ ${cleanName(it.file.name)}</span>` : ''}
       </div>
       <span class="badge ${cls}">${lbl}</span>
     </div>`;
@@ -311,7 +452,7 @@ function renderResults() {
   if (!done.length) { sec.style.display = 'none'; return; }
   sec.style.display = 'block';
   grid.innerHTML = done.map(it => {
-    const nn = newName(it.file.name);
+    const nn = cleanName(it.file.name);
     const pct = Math.round((1 - it.outSize / it.file.size) * 100);
     return `<div class="result-card">
       <img class="result-img" src="${it.dataUrl}" alt="${nn}" loading="lazy">
@@ -321,36 +462,36 @@ function renderResults() {
       </div>
       <button class="result-dl" onclick="dlSingle(${it.id})">
         <svg class="icon" viewBox="0 0 24 24" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download
+        ${T().dl}
       </button>
     </div>`;
   }).join('');
 }
 
 function convertItem(it) {
-  return new Promise(resolve => {
+  return new Promise(async (resolve) => {
     it.status = 'processing'; render();
-    const ou = URL.createObjectURL(it.file);
-    const img = new Image();
-    img.onload = () => {
+    try {
       const q = parseInt(document.getElementById('quality').value) / 100;
       const mw = parseInt(document.getElementById('max-w').value) || 0;
       const mh = parseInt(document.getElementById('max-h').value) || 0;
-      let w = img.naturalWidth, h = img.naturalHeight;
+      const bitmap = await createImageBitmap(it.file);
+      let w = bitmap.width, h = bitmap.height;
       if (mw > 0 && w > mw) { h = Math.round(h * mw / w); w = mw; }
       if (mh > 0 && h > mh) { w = Math.round(w * mh / h); h = mh; }
       const cv = document.createElement('canvas');
       cv.width = w; cv.height = h;
-      cv.getContext('2d').drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(ou);
+      cv.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
       const du = cv.toDataURL('image/webp', q);
       it.dataUrl = du;
       it.outSize = Math.round(atob(du.split(',')[1]).length);
       it.status = 'done';
-      resolve();
-    };
-    img.onerror = () => { it.status = 'error'; URL.revokeObjectURL(ou); resolve(); };
-    img.src = ou;
+    } catch(err) {
+      it.status = 'error';
+      it.errorMsg = err.message || 'Conversion failed';
+    }
+    resolve();
   });
 }
 
@@ -368,7 +509,7 @@ async function convertAll() {
       await convertItem(it);
       done++;
       pf.style.width = Math.round(done / total * 100) + '%';
-      pl.textContent = `Converting… ${done} / ${total}`;
+      pl.textContent = T().proc + ` ${done} / ${total}`;
       render();
       renderResults();
     }
@@ -380,26 +521,34 @@ async function convertAll() {
   renderResults();
 }
 
+function toggleRef() {
+  const b = document.getElementById('ref-body');
+  const a = document.getElementById('ref-arrow');
+  const hide = b.style.display === 'none';
+  b.style.display = hide ? 'block' : 'none';
+  a.textContent = hide ? '▼' : '▶';
+}
+
 function highlightClear() {
   const b = document.getElementById('btn-clear');
   b.className = 'btn-cta';
-  b.textContent = '↺ New batch';
+  b.innerHTML = T().btnNew;
 }
 
 async function downloadZip() {
   const btn = document.getElementById('btn-zip');
   btn.disabled = true;
-  btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Zipping…`;
+  btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${T().zipping}`;
   try {
     const zip = new JSZip();
     const folder = zip.folder('optimized-webp');
     for (const it of items) {
       if (!it.dataUrl) continue;
       const b64 = it.dataUrl.split(',')[1];
-      folder.file(newName(it.file.name), b64, { base64: true });
+      folder.file(cleanName(it.file.name), b64, { base64: true });
     }
     const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' }, meta => {
-      btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> Zipping ${Math.round(meta.percent)}%…`;
+      btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> ${T().zippingPct(Math.round(meta.percent))}`;
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -410,14 +559,14 @@ async function downloadZip() {
     highlightClear();
   } catch(e) { alert('ZIP failed: ' + e.message); }
   btn.disabled = false;
-  btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download all as ZIP`;
+  document.getElementById("t-btn-zip").textContent = T().btnZip;
 }
 
 function dlSingle(id) {
   const it = items.find(i => i.id === id);
   if (!it || !it.dataUrl) return;
   const a = document.createElement('a');
-  a.href = it.dataUrl; a.download = newName(it.file.name);
+  a.href = it.dataUrl; a.download = cleanName(it.file.name);
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   highlightClear();
 }
@@ -428,7 +577,7 @@ function clearAll() {
   document.getElementById('results-grid').innerHTML = '';
   const b = document.getElementById('btn-clear');
   b.className = 'btn-ghost';
-  b.textContent = 'Clear';
+  b.innerHTML = '<span id="t-btn-clear">' + T().btnClear + '</span>';
   render();
 }
 </script>
