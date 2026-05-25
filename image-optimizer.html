@@ -9,25 +9,25 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #FAF0EA;
+    --bg: #F8F6F1;
     --surface: #FFFFFF;
-    --surface2: #F5E6E0;
-    --border: #EDDAD2;
-    --border2: #D9C0B8;
-    --text: #2C1F1A;
-    --muted: #7A6560;
-    --accent: #B5546A;
-    --accent-hover: #923F54;
-    --gold: #B8924A;
-    --rose: #C4607A;
-    --green-bg: #EDF5F1;
-    --green-text: #2A6647;
-    --blue-bg: #EEF3F9;
-    --blue-text: #2C5282;
-    --red-bg: #FBE9EC;
-    --red-text: #8A1A2C;
-    --amber-bg: #FDF5E0;
-    --amber-text: #7A5A0A;
+    --surface2: #F0EDE4;
+    --border: #E8E4DB;
+    --border2: #C8C2B5;
+    --text: #1C1916;
+    --muted: #7A7268;
+    --accent: #8B6914;
+    --accent-hover: #6B4E0A;
+    --gold: #8B6914;
+    --rose: #8B6914;
+    --green-bg: #EAF3DE;
+    --green-text: #3B6D11;
+    --blue-bg: #E6F1FB;
+    --blue-text: #185FA5;
+    --red-bg: #FCEBEB;
+    --red-text: #A32D2D;
+    --amber-bg: #FAEEDA;
+    --amber-text: #633806;
     --radius: 10px;
     --radius-sm: 6px;
   }
@@ -48,7 +48,7 @@
   header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; color: var(--accent); }
   header .eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
   header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
-  .lang-toggle { position: absolute; top: 0; right: 0; display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border2); border-radius: 99px; padding: 3px; gap: 0; }
+  .lang-toggle { position: absolute; top: 0; left: 0; display: flex; align-items: center; background: var(--surface); border: 1.5px solid var(--border2); border-radius: 99px; padding: 3px; gap: 0; }
   .lang-opt { background: transparent; border: none; padding: 5px 12px; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; border-radius: 99px; transition: all .15s; font-family: inherit; letter-spacing: .04em; }
   .lang-opt.active { background: var(--accent); color: #fff; }
   .lang-opt:not(.active):hover { color: var(--accent); }
@@ -66,7 +66,7 @@
     margin-bottom: 16px;
     user-select: none;
   }
-  #drop-zone:hover, #drop-zone.over { border-color: var(--accent); background: #FBE8EE; }
+  #drop-zone:hover, #drop-zone.over { border-color: var(--accent); background: #F5F2EB; }
   #drop-zone svg { display: block; margin: 0 auto 10px; opacity: 0.45; }
   #drop-zone .dz-title { font-size: 15px; font-weight: 500; }
   #drop-zone .dz-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
@@ -93,14 +93,14 @@
     font-size: 15px; font-weight: 500;
     outline: none; transition: border-color 0.15s;
   }
-  input[type=number]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(181,84,106,.12); }
+  input[type=number]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,105,20,.12); }
 
   /* Stats */
   #stats-row { display: none; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
   .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; }
   .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; margin-bottom: 4px; }
   .stat-value { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
-  .stat-value.green { color: var(--rose); }
+  .stat-value.green { color: var(--green-text); }
 
   /* File queue */
   #file-queue { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -112,7 +112,7 @@
   }
   .fname { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fsizes { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .fsizes .saved { color: var(--accent); font-weight: 600; }
+  .fsizes .saved { color: var(--green-text); font-weight: 600; }
   .badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 99px; white-space: nowrap; }
   .b-wait { background: var(--surface2); color: var(--muted); }
   .b-proc { background: var(--blue-bg); color: var(--blue-text); }
@@ -161,8 +161,8 @@
     animation: ctapulse 1.8s ease-in-out infinite;
   }
   @keyframes ctapulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(181,84,106,0.45); }
-    55%       { box-shadow: 0 0 0 8px rgba(181,84,106,0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139,105,20,0.45); }
+    55%       { box-shadow: 0 0 0 8px rgba(139,105,20,0); }
   }
 
   /* Result previews */
@@ -174,7 +174,7 @@
   .result-info { padding: 8px 10px; }
   .result-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .result-sizes { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .result-pct { font-size: 12px; font-weight: 700; color: var(--accent); }
+  .result-pct { font-size: 12px; font-weight: 700; color: var(--green-text); }
   .result-dl { width: 100%; padding: 7px; font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text); border: none; border-top: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background 0.1s; }
   .result-dl:hover { background: var(--border); }
 
@@ -184,10 +184,10 @@
   .type-ref-title:hover { color: var(--accent); }
   .type-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
   .type-row { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); }
-  .type-tag { font-family: monospace; font-size: 11px; font-weight: 700; color: var(--gold); background: #FDF6E8; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; border: 1px solid #EAD9B0; }
+  .type-tag { font-family: monospace; font-size: 11px; font-weight: 700; color: var(--accent); background: #F5F0E4; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; border: 1px solid #D4C89A; }
   .type-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
   /* Rename preview */
-  .rename-preview { font-size: 11px; font-family: monospace; color: var(--accent); background: #FAEAEE; padding: 2px 6px; border-radius: 4px; margin-top: 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #DDB8C4; }
+  .rename-preview { font-size: 11px; font-family: monospace; color: var(--accent); background: #F5F0E4; padding: 2px 6px; border-radius: 4px; margin-top: 3px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #D4C89A; }
 
   svg.icon { width: 16px; height: 16px; vertical-align: -3px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 </style>
@@ -200,6 +200,7 @@
       <button class="lang-opt active" id="lang-en" onclick="setLang('en')">EN</button>
       <button class="lang-opt" id="lang-vi" onclick="setLang('vi')">VI</button>
     </div>
+    <a href="https://glowrivia.com" target="_blank" rel="noopener" class="glow-link" style="position:absolute;top:0;right:0;font-size:12px;font-weight:500;color:var(--accent);text-decoration:none">by Glow Group ↗</a>
     <div class="eyebrow" id="t-eyebrow">Glow Group · Free Tools</div>
     <h1><span id="t-title">Lovable Image Optimizer</span></h1>
     <p id="t-subtitle">Batch convert images to WebP — real ZIP download, no restrictions</p>
@@ -286,6 +287,14 @@
 
 </div>
 
+  <footer style="text-align:center;margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:12px;color:var(--muted)">
+    Built with ❤️ by <a href="https://glowrivia.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600">Glow Group</a>
+    — Free tool for the community ·
+    <a href="#" onclick="clearAll();return false" style="color:var(--accent);text-decoration:none;font-weight:600" id="t-footer-clear">Clear &amp; start over</a>
+  </footer>
+
+</div>
+
 <script>
 let items = [], uid = 0;
 let lang = 'en';
@@ -293,6 +302,7 @@ let lang = 'en';
 const LANGS = {
   en: {
     eyebrow:'Glow Group · Free Tools',
+    footerClear:'Clear & start over',
     title:'Lovable Image Optimizer', subtitle:'Batch convert images to WebP — real ZIP download, no restrictions',
     dzTitle:'Drop images here or click to upload', dzSub:'JPG, PNG, GIF, BMP, AVIF — multiple files supported',
     qLabel:'WebP Quality', mwLabel:'Max Width (px)', mhLabel:'Max Height (px)',
@@ -312,6 +322,7 @@ const LANGS = {
   },
   vi: {
     eyebrow:'Glow Group · Công Cụ Miễn Phí',
+    footerClear:'Xóa & bắt đầu lại',
     title:'Tối Ưu Hình Ảnh Lovable', subtitle:'Chuyển hàng loạt ảnh sang WebP — tải ZIP thật sự, không giới hạn',
     dzTitle:'Kéo thả ảnh vào đây hoặc click để upload', dzSub:'JPG, PNG, GIF, BMP, AVIF — hỗ trợ nhiều file cùng lúc',
     qLabel:'Chất lượng WebP', mwLabel:'Chiều rộng tối đa (px)', mhLabel:'Chiều cao tối đa (px)',
@@ -345,6 +356,7 @@ function applyLang() {
   const t = T();
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.innerHTML = val; };
   set('t-eyebrow', t.eyebrow);
+  set('t-footer-clear', t.footerClear);
   set('t-title', t.title);
   set('t-subtitle', t.subtitle);
   set('t-dz-title', t.dzTitle);
