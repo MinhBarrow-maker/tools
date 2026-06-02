@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Team Timezone Planner</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #F5F0E4;
+    color: #3D3325;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; font-weight: 600; color: #3D3325; margin-bottom: 0.25rem; letter-spacing: -0.3px; }
+  .subtitle { font-size: 13px; color: #8a7d6b; margin-bottom: 1.75rem; }
+  .top-bar {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+    background: #fff; border: 1px solid #e8e0d0;
+    border-radius: 12px; padding: 14px 18px;
+  }
+  .top-bar label { font-size: 13px; color: #8a7d6b; white-space: nowrap; }
+  .time-input {
+    padding: 7px 12px; border: 1px solid #e0d8ca; border-radius: 8px;
+    font-size: 14px; font-family: inherit; background: #F5F0E4;
+    color: #3D3325; cursor: pointer; flex: 1; min-width: 200px;
+  }
+  .time-input:focus { outline: none; border-color: #B8975A; }
+  .add-btn {
+    padding: 7px 16px; border: 1px solid #B8975A; border-radius: 8px;
+    font-size: 13px; background: transparent; color: #B8975A;
+    cursor: pointer; white-space: nowrap; font-family: inherit; transition: background 0.15s;
+  }
+  .add-btn:hover { background: #f5ece0; }
+  .members-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+    gap: 10px; margin-bottom: 1.5rem;
+  }
+  .member-card {
+    background: #fff; border: 1px solid #e8e0d0;
+    border-radius: 14px; padding: 14px 16px;
+    position: relative; transition: border-color 0.2s, background 0.2s;
+  }
+  .member-card.good  { border-color: #1D9E75; background: #f0fbf6; }
+  .member-card.maybe { border-color: #BA7517; background: #fdf6e8; }
+  .member-card.bad   { border-color: #A32D2D; background: #fdf0f0; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; margin-bottom: 10px;
+  }
+  .name-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .name-input {
+    flex: 1; font-size: 14px; font-weight: 600;
+    background: transparent; border: none; outline: none;
+    color: #3D3325; font-family: inherit; min-width: 0;
+  }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+  .member-card.good  .status-dot { background: #0F6E56; }
+  .member-card.maybe .status-dot { background: #854F0B; }
+  .member-card.bad   .status-dot { background: #A32D2D; }
+  .local-time { font-size: 20px; font-weight: 600; color: #3D3325; letter-spacing: -0.5px; margin-bottom: 2px; line-height: 1.2; }
+  .day-label { font-size: 11px; font-weight: 400; color: #8a7d6b; margin-left: 4px; }
+  .tz-select {
+    font-size: 11px; background: transparent; border: none; outline: none;
+    color: #8a7d6b; font-family: inherit; cursor: pointer; max-width: 100%; margin-top: 5px;
+  }
+  .remove-btn {
+    position: absolute; top: 10px; right: 12px;
+    background: none; border: none; cursor: pointer;
+    font-size: 16px; color: #bbb; line-height: 1; transition: color 0.15s;
+  }
+  .remove-btn:hover { color: #A32D2D; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: #8a7d6b; margin-bottom: 1.25rem; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .timeline-wrap {
+    background: #fff; border: 1px solid #e8e0d0;
+    border-radius: 14px; padding: 18px; overflow-x: auto; margin-bottom: 1.25rem;
+  }
+  .timeline-title { font-size: 13px; font-weight: 600; color: #8a7d6b; margin-bottom: 14px; }
+  .tl-hours { display: flex; padding-left: 84px; margin-bottom: 4px; }
+  .tl-hour-label { width: 22px; flex-shrink: 0; font-size: 10px; color: #aaa; margin-right: 1px; text-align: center; }
+  .tl-marker-row { display: flex; padding-left: 84px; height: 14px; margin-bottom: 3px; }
+  .selected-marker { width: 22px; flex-shrink: 0; margin-right: 1px; display: flex; justify-content: center; }
+  .tl-row { display: flex; align-items: center; margin-bottom: 6px; }
+  .tl-name { font-size: 12px; color: #8a7d6b; width: 84px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl-blocks { display: flex; flex: 1; }
+  .tl-block { width: 22px; height: 24px; flex-shrink: 0; border-radius: 4px; margin-right: 1px; }
+  .meeting-summary {
+    background: #fff; border: 1px solid #e8e0d0;
+    border-radius: 14px; padding: 16px 18px;
+    font-size: 13px; color: #8a7d6b; line-height: 1.9;
+  }
+  .meeting-summary strong { color: #3D3325; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Team Timezone Planner</h1>
+  <p class="subtitle">Pick a meeting time — see what it looks like for everyone on your team.</p>
+
+  <div class="top-bar">
+    <label>Meeting time (your local):</label>
+    <input type="datetime-local" class="time-input" id="meetingTime" />
+    <button class="add-btn" onclick="addMember()">+ Add teammate</button>
+  </div>
+
+  <div class="members-grid" id="membersGrid"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div> Great (8am–6pm)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#BA7517"></div> Early/late (6–8am or 6–9pm)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#A32D2D"></div> Rough (9pm–6am)</div>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="timeline-title">24h overlap view</div>
+    <div id="timelineContainer"></div>
+  </div>
+
+  <div class="meeting-summary" id="meetingSummary"></div>
+</div>
+
+<script>
+const TIMEZONES = [
+  { label: "UTC-10 — Hawaii",               tz: "Pacific/Honolulu" },
+  { label: "UTC-8 — Pacific (LA)",          tz: "America/Los_Angeles" },
+  { label: "UTC-7 — Mountain (Denver)",     tz: "America/Denver" },
+  { label: "UTC-6 — Central (Chicago)",     tz: "America/Chicago" },
+  { label: "UTC-5 — Eastern (NY)",          tz: "America/New_York" },
+  { label: "UTC-4 — Atlantic (Halifax)",    tz: "America/Halifax" },
+  { label: "UTC-3 — Sao Paulo",             tz: "America/Sao_Paulo" },
+  { label: "UTC+0 — London / GMT",          tz: "Europe/London" },
+  { label: "UTC+1 — Paris / Berlin / CET",  tz: "Europe/Paris" },
+  { label: "UTC+2 — Helsinki / Kyiv / EET", tz: "Europe/Helsinki" },
+  { label: "UTC+3 — Moscow",                tz: "Europe/Moscow" },
+  { label: "UTC+4 — Dubai",                 tz: "Asia/Dubai" },
+  { label: "UTC+5:30 — Mumbai",             tz: "Asia/Kolkata" },
+  { label: "UTC+7 — Bangkok / Vietnam",     tz: "Asia/Bangkok" },
+  { label: "UTC+8 — Singapore / HK",        tz: "Asia/Singapore" },
+  { label: "UTC+9 — Tokyo",                 tz: "Asia/Tokyo" },
+  { label: "UTC+10 — Sydney",               tz: "Australia/Sydney" },
+  { label: "UTC+12 — Auckland",             tz: "Pacific/Auckland" },
+];
+
+const AVATARS = [
+  { bg: "#EEEDFE", color: "#3C3489" },
+  { bg: "#E1F5EE", color: "#085041" },
+  { bg: "#FAECE7", color: "#712B13" },
+  { bg: "#E6F1FB", color: "#0C447C" },
+  { bg: "#FBEAF0", color: "#72243E" },
+  { bg: "#FAEEDA", color: "#633806" },
+  { bg: "#EAF3DE", color: "#27500A" },
+  { bg: "#F1EFE8", color: "#444441" },
+];
+
+let members = [
+  { id: 1, name: "Tracie", tz: "Pacific/Honolulu" },
+  { id: 2, name: "Steve",  tz: "America/Chicago" },
+  { id: 3, name: "Minh",   tz: "America/Los_Angeles" },
+  { id: 4, name: "Olya",   tz: "Europe/Helsinki" },
+  { id: 5, name: "Marce",  tz: "America/Chicago" },
+  { id: 6, name: "Yael",   tz: "America/Chicago" },
+];
+let nextId = 7;
+
+function localTZ() { return Intl.DateTimeFormat().resolvedOptions().timeZone; }
+
+function formatInTZ(date, tz) {
+  try {
+    return new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: true }).format(date);
+  } catch(e) { return "--:--"; }
+}
+
+function getHourInTZ(date, tz) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour: "numeric", hour12: false }).formatToParts(date);
+    const h = parts.find(p => p.type === "hour");
+    let v = parseInt(h ? h.value : "12");
+    return v === 24 ? 0 : v;
+  } catch(e) { return 12; }
+}
+
+function getDayLabel(date, tz) {
+  try {
+    const a = new Intl.DateTimeFormat("en-US", { timeZone: localTZ(), weekday: "short", day: "numeric" }).format(date);
+    const b = new Intl.DateTimeFormat("en-US", { timeZone: tz, weekday: "short", day: "numeric" }).format(date);
+    return a !== b ? b : null;
+  } catch(e) { return null; }
+}
+
+function getOffsetHours(date, tz) {
+  try {
+    const p = new Intl.DateTimeFormat("en-US", { timeZone: tz, hour12: false, year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" }).formatToParts(date);
+    const o = {}; p.forEach(x => { o[x.type] = x.value; });
+    const d = new Date(`${o.year}-${o.month}-${o.day}T${o.hour === "24" ? "00" : o.hour}:${o.minute}:00`);
+    return (d - date) / 3600000;
+  } catch(e) { return 0; }
+}
+
+function status(h) {
+  if (h >= 8 && h < 18) return "good";
+  if ((h >= 6 && h < 8) || (h >= 18 && h < 21)) return "maybe";
+  return "bad";
+}
+
+function blockColor(h) {
+  const s = status(h);
+  return s === "good" ? "#5DCAA5" : s === "maybe" ? "#FAC775" : "#F09595";
+}
+
+function getDate() {
+  const v = document.getElementById("meetingTime").value;
+  return v ? new Date(v) : new Date();
+}
+
+function initTime() {
+  const n = new Date();
+  const pad = x => String(x).padStart(2,"0");
+  document.getElementById("meetingTime").value =
+    `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;
+}
+
+function initials(name) {
+  return name.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2);
+}
+
+function tzSelect(currentTZ, id) {
+  return `<select class="tz-select" onchange="updateTZ(${id}, this.value)">` +
+    TIMEZONES.map(t => `<option value="${t.tz}"${t.tz === currentTZ ? " selected" : ""}>${t.label}</option>`).join("") +
+    `</select>`;
+}
+
+function render() {
+  const date = getDate();
+  document.getElementById("membersGrid").innerHTML = members.map((m, i) => {
+    const av = AVATARS[i % AVATARS.length];
+    const time = formatInTZ(date, m.tz);
+    const hour = getHourInTZ(date, m.tz);
+    const st = status(hour);
+    const day = getDayLabel(date, m.tz);
+    return `
+      <div class="member-card ${st}">
+        <button class="remove-btn" onclick="removeMember(${m.id})">×</button>
+        <div class="avatar" style="background:${av.bg};color:${av.color}">${initials(m.name)}</div>
+        <div class="name-row">
+          <input class="name-input" value="${m.name}"
+            onblur="updateName(${m.id}, this.value)"
+            onkeydown="if(event.key==='Enter')this.blur()" />
+          <div class="status-dot"></div>
+        </div>
+        <div class="local-time">${time}${day ? `<span class="day-label">${day}</span>` : ""}</div>
+        ${tzSelect(m.tz, m.id)}
+      </div>`;
+  }).join("");
+  renderTimeline(date);
+  renderSummary(date);
+}
+
+function renderTimeline(date) {
+  const sorted = [...members].sort((a, b) => getOffsetHours(date, a.tz) - getOffsetHours(date, b.tz));
+  const selH = date.getHours();
+  let html = '<div class="tl-hours">';
+  for (let h = 0; h < 24; h++) {
+    const lbl = h === 0 ? "12a" : h < 12 ? h+"a" : h === 12 ? "12p" : (h-12)+"p";
+    html += `<div class="tl-hour-label">${h % 2 === 0 ? lbl : ""}</div>`;
+  }
+  html += "</div><div class='tl-marker-row'>";
+  for (let h = 0; h < 24; h++) {
+    html += `<div class="selected-marker">${h === selH ? '<div style="width:2px;height:14px;background:#B8975A;border-radius:1px;margin:0 auto;"></div>' : ''}</div>`;
+  }
+  html += "</div>";
+  sorted.forEach(m => {
+    const mBase = getHourInTZ(date, m.tz);
+    const lBase = date.getHours();
+    html += `<div class="tl-row"><div class="tl-name" title="${m.name}">${m.name}</div><div class="tl-blocks">`;
+    for (let h = 0; h < 24; h++) {
+      const mh = (mBase - lBase + h + 48) % 24;
+      const isSel = h === selH;
+      html += `<div class="tl-block" style="background:${blockColor(mh)};opacity:${isSel ? 1 : 0.3};${isSel ? "outline:2px solid #B8975A;outline-offset:1px;" : ""}"></div>`;
+    }
+    html += "</div></div>";
+  });
+  document.getElementById("timelineContainer").innerHTML = html;
+}
+
+function renderSummary(date) {
+  const results = members.map(m => {
+    const hour = getHourInTZ(date, m.tz);
+    const st = status(hour);
+    const day = getDayLabel(date, m.tz);
+    return { name: m.name, time: formatInTZ(date, m.tz), st, day };
+  });
+  const bad = results.filter(r => r.st === "bad");
+  const lines = results.map(r => {
+    const c = r.st === "good" ? "#0F6E56" : r.st === "maybe" ? "#854F0B" : "#A32D2D";
+    const icon = r.st === "good" ? "✓" : r.st === "maybe" ? "~" : "✗";
+    const day = r.day ? ` (${r.day})` : "";
+    return `<span style="color:${c};font-weight:600">${icon} ${r.name}</span> — ${r.time}${day}`;
+  }).join(" &nbsp;·&nbsp; ");
+  let html = `<strong>At selected time:</strong><br>${lines}`;
+  if (bad.length) html += `<br><span style="color:#A32D2D">Heads up: rough for ${bad.map(r=>r.name).join(", ")} — middle of the night.</span>`;
+  document.getElementById("meetingSummary").innerHTML = html;
+}
+
+function addMember() {
+  members.push({ id: nextId++, name: "New teammate", tz: "America/Chicago" });
+  render();
+}
+function removeMember(id) {
+  if (members.length <= 1) return;
+  members = members.filter(m => m.id !== id);
+  render();
+}
+function updateTZ(id, tz) {
+  const m = members.find(m => m.id === id);
+  if (m) { m.tz = tz; render(); }
+}
+function updateName(id, name) {
+  const m = members.find(m => m.id === id);
+  if (m && name.trim()) { m.name = name.trim(); render(); }
+}
+
+document.getElementById("meetingTime").addEventListener("input", render);
+initTime();
+render();
+</script>
+</body>
+</html>
